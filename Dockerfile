@@ -6,6 +6,6 @@ COPY . .
 
 RUN python3 -m venv venv
 
-RUN pip3 install -r . 
+RUN pip3 install -r requirements.txt
 
 CMD [ "./entrypoint.sh" ]

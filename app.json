@@ -1,0 +1,6 @@
+{
+    "name": "covid explorer portal",
+    "description": "Using streamlit",
+    "repository": "https://github.com/SPTKL/covid.git",
+    "stack": "container"
+  }

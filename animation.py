@@ -40,6 +40,13 @@ def get_data():
     df_ny['deaths_norm'] = df_ny.deaths*100000/df_ny['pop']
     df_ny['cases_norm_log10'] = np.log10(df_ny.cases_norm)
     df_ny['deaths_norm_log10'] = np.log10(df_ny.deaths_norm)
+
+    df_covid['cases_norm'] = df_covid.cases*100000/df_covid['pop']
+    df_covid['deaths_norm'] = df_covid.deaths*100000/df_covid['pop']
+    df_covid['cases_norm_log10'] = np.log10(df_covid.cases_norm)
+    df_covid['deaths_norm_log10'] = np.log10(df_covid.deaths_norm)
+    df_covid.index = df_covid.date
+
     df_ny.index = df_ny.date
     df_ny = df_ny.drop('date', axis=1)
     df_ny['fat_rate'] = df_ny.deaths_norm*100/df_ny.cases_norm
@@ -122,19 +129,20 @@ def plot_log_acceleration(df,counties, date, rolling, col='cases'):
     )
     
     st.plotly_chart(fig)
-df_ny['uid'] = df_ny['county'] + ', ' + df_ny['state']
-df_ny['date'] = df_ny.index
-top_counties=list(df_ny.loc[df_ny.index==df_ny.index.max(), :].sort_values('cases', ascending=False).uid)
+
+df_covid['uid'] = df_covid['county'] + ', ' + df_covid['state']
+df_covid['date'] = df_covid.index
+top_counties=list(df_covid.loc[df_covid.index==df_covid.index.max(), :].sort_values('cases', ascending=False).uid)
 counties=st.sidebar.multiselect('pick your counties here', top_counties, default=top_counties[:3])
 rolling=st.sidebar.slider('pick rolling mean window', 1, 7, 3, 1)
 col=st.sidebar.selectbox('cases/deaths', ['cases', 'deaths'], index=0)
 st.header('COVID-19 Explorer')
 st.write('On March 16th, Non-essential business and schools shut down')
 
-plot_cases(df_ny, counties, df_ny.index.max(), rolling, col)
-plot_log_cases(df_ny, counties, df_ny.index.max(), rolling, col)
-plot_log_acceleration(df_ny, counties, df_ny.index.max(), rolling, col)
+plot_cases(df_covid, counties, df_covid.index.max(), rolling, col)
+plot_log_cases(df_covid, counties, df_covid.index.max(), rolling, col)
+plot_log_acceleration(df_covid, counties, df_covid.index.max(), rolling, col)
 
-st.write(f'Data Capture Date: {df_ny.index.max()}')
+st.write(f'Data Capture Date: {df_covid.index.max()}')
 st.write(f'Data Source: https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv')
 st.write(f'Github repo: https://github.com/SPTKL/covid')

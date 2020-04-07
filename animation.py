@@ -19,16 +19,16 @@ def get_data():
     df_covid.fips = l
     df_covid.date = df_covid.date.astype('datetime64[ns]')
     df_covid = df_covid.merge(df_pop, how='left', on=['fips'])
-    l=[]
-    for i in range(len(df_covid)):
-        if (df_covid.date[i]>pd.to_datetime('2020-03-18'))&(df_covid.deaths[i]>0)&(df_covid.county[i]=='New York City'):
-            l.append(df_covid.deaths[i]/0.015)
-        elif (df_covid.date[i]>pd.to_datetime('2020-03-18'))&(df_covid.deaths[i]>0)&(df_covid.county[i]!='New York City')&\
-            (df_covid.state[i]=='New York')&(df_covid.county[i]!='Westchester'):
-            l.append(df_covid.deaths[i]/0.025)
-        else:
-            l.append(df_covid.cases[i])
-    df_covid['cases']=l
+    # l=[]
+    # for i in range(len(df_covid)):
+    #     if (df_covid.date[i]>pd.to_datetime('2020-03-18'))&(df_covid.deaths[i]>0)&(df_covid.county[i]=='New York City'):
+    #         l.append(df_covid.deaths[i]/0.015)
+    #     elif (df_covid.date[i]>pd.to_datetime('2020-03-18'))&(df_covid.deaths[i]>0)&(df_covid.county[i]!='New York City')&\
+    #         (df_covid.state[i]=='New York')&(df_covid.county[i]!='Westchester'):
+    #         l.append(df_covid.deaths[i]/0.025)
+    #     else:
+    #         l.append(df_covid.cases[i])
+    # df_covid['cases']=l
 
     df_ny = df_covid[(df_covid.state=='New York')|(df_covid.state=='New Jersey')|\
                 (df_covid.state=='Connecticut')|(df_covid.state=='Pennsylvania')|\

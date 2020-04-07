@@ -47,10 +47,10 @@ def get_data():
 
 df_covid,df_ny=get_data()
 
-def plot_cases(df,counties, date, rolling=3):
+def plot_cases(df,counties, date, rolling=3, col='cases'):
     fig = go.Figure()
     for i in counties:
-        y = df.loc[(df.uid==i)&(df.index<=date),'cases_norm_log10'].rolling(rolling, center=True).mean()
+        y = df.loc[(df.uid==i)&(df.index<=date),f'{col}_norm_log10'].rolling(rolling, center=True).mean()
         x = df.loc[(df.uid==i)&(df.index<=date),'date'].to_list()
         fig.add_trace(
             go.Scatter(
@@ -72,16 +72,16 @@ def plot_cases(df,counties, date, rolling=3):
     )
     fig.update_layout(
         template='plotly_white', 
-        title=go.layout.Title(text=f'Cases Normalized by Population {rolling} Day Rolling Average'),
+        title=go.layout.Title(text=f'{col} Normalized by Population {rolling} Day Rolling Average'.title() ),
         xaxis=dict(title='date'),
-        yaxis=dict(title='cases per 100,000')
+        yaxis=dict(title=f'{col} per 100,000')
     )
     st.plotly_chart(fig)
 
-def plot_log_cases(df,counties, date, rolling=3):
+def plot_log_cases(df,counties, date, rolling=3, col='cases'):
     fig = go.Figure()
     for i in counties:
-        L = df.loc[(df.uid==i)&(df.index<=date),'cases_norm'].to_list()
+        L = df.loc[(df.uid==i)&(df.index<=date),f'{col}_norm'].to_list()
         y = [np.log10(y - x) for x,y in zip(L,L[1:])]
         x = [np.log10(j) for j in L]
         fig.add_trace(
@@ -93,17 +93,17 @@ def plot_log_cases(df,counties, date, rolling=3):
     
     fig.update_layout(
         template='plotly_white', 
-        title=go.layout.Title(text=f"Case Growth Rate with {rolling} Day Rolling Average"),
-        xaxis=dict(title='total cases per 100,000'), 
-        yaxis=dict(title='cases per day per 100,000')
+        title=go.layout.Title(text=f"{col} Growth Rate with {rolling} Day Rolling Average".title() ),
+        xaxis=dict(title=f'total {col} per 100,000'), 
+        yaxis=dict(title=f'{col} per day per 100,000')
     )
     
     st.plotly_chart(fig)
 
-def plot_log_acceleration(df,counties, date, rolling):
+def plot_log_acceleration(df,counties, date, rolling, col='cases'):
     fig = go.Figure()
     for i in counties:
-        L = df.loc[(df.uid==i)&(df.index<=date),'cases_norm'].to_list()
+        L = df.loc[(df.uid==i)&(df.index<=date),f'{col}_norm'].to_list()
         y = [np.log10(y - x) for x,y in zip(L,L[1:])]
         x = [np.log10(j) for j in L]
         slope = [(y[1]-y[0])/(x[1]-x[0]) for x,y in zip(zip(x, x[1:]), zip(y, y[1:]))]
@@ -116,9 +116,9 @@ def plot_log_acceleration(df,counties, date, rolling):
 
     fig.update_layout(
         template='plotly_white', 
-        title=go.layout.Title(text=f"Cases Growth Acceleration with {rolling} Day Rolling Average"),
-        xaxis=dict(title='total cases per 100,000'), 
-        yaxis=dict(title='cases per day^2 per 100,000')
+        title=go.layout.Title(text=f"{col} Growth Acceleration with {rolling} Day Rolling Average".title() ),
+        xaxis=dict(title=f'total {col} per 100,000'), 
+        yaxis=dict(title=f'{col} per day^2 per 100,000')
     )
     
     st.plotly_chart(fig)
@@ -127,12 +127,14 @@ df_ny['date'] = df_ny.index
 top_counties=list(df_ny.loc[df_ny.index==df_ny.index.max(), :].sort_values('cases', ascending=False).uid)
 counties=st.sidebar.multiselect('pick your counties here', top_counties, default=top_counties[:3])
 rolling=st.sidebar.slider('pick rolling mean window', 1, 7, 3, 1)
-
+col=st.sidebar.selectbox('cases/deaths', ['cases', 'deaths'], index=0)
 st.header('COVID-19 Explorer')
 st.write('On March 16th, Non-essential business and schools shut down')
-plot_cases(df_ny, counties, df_ny.index.max(), rolling)
-plot_log_cases(df_ny, counties, df_ny.index.max(), rolling)
-plot_log_acceleration(df_ny, counties, df_ny.index.max(), rolling)
+
+plot_cases(df_ny, counties, df_ny.index.max(), rolling, col)
+plot_log_cases(df_ny, counties, df_ny.index.max(), rolling, col)
+plot_log_acceleration(df_ny, counties, df_ny.index.max(), rolling, col)
+
 st.write(f'Data Capture Date: {df_ny.index.max()}')
 st.write(f'Data Source: https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv')
 st.write(f'Github repo: https://github.com/SPTKL/covid')

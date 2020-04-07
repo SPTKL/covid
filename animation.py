@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd 
 import numpy as np
 import plotly.graph_objects as go
-import time
 
 @st.cache(allow_output_mutation=True)
 def get_data(): 
@@ -48,46 +47,91 @@ def get_data():
 
 df_covid,df_ny=get_data()
 
-st.write(df_ny.index.max())
-# x : cases_norm_log10
-# y : changes in cases_norm_log10
-def plot_log_cases(df,counties, date):
-    data = []
-    frames = []
+def plot_cases(df,counties, date, rolling=3):
+    fig = go.Figure()
     for i in counties:
-        L = df.loc[(df.uid==i)&(df.index<=date),'cases_norm'].to_list()
-        L_delta = [np.log10(y - x) for x,y in zip(L,L[1:])]
-        data.append( 
+        y = df.loc[(df.uid==i)&(df.index<=date),'cases_norm_log10'].rolling(rolling, center=True).mean()
+        x = df.loc[(df.uid==i)&(df.index<=date),'date'].to_list()
+        fig.add_trace(
             go.Scatter(
-                y=L_delta,
-                x=[np.log10(j) for j in L],
+                y=y,
+                x=x,
                 name=i,
                 mode='lines'))
-    for j in df.date.unique():
-        data = []
-        for i in counties:
-            L = df.loc[(df.uid==i)&(df.index<=j),'cases_norm'].to_list()
-            L_delta = [np.log10(y - x) for x,y in zip(L,L[1:])]
-            data.append(go.Scatter(
-                        y=L_delta,
-                        x=[np.log10(j) for j in L],
-                        name=i,
-                        mode='lines'))
-        frames.append(go.Frame(data=data))
-
-    fig = go.Figure(
-        data=data,
-        layout=go.Layout(
-                updatemenus=[dict(type="buttons",
-                    buttons=[dict(label="Play",
-                    method="animate",
-                    args=[None])])]),
-        frames=frames
+    fig.add_shape(
+                type='line', 
+                xref="x",
+                yref="y",
+                x0='2020-03-16 00:00:00', x1='2020-03-16 00:00:00', 
+                y0=-2, y1=4,
+                line=dict(
+                    color="lightgrey",
+                    width=2,
+                    dash="dot"
+        )
+    )
+    fig.update_layout(
+        template='plotly_white', 
+        title=go.layout.Title(text=f'Cases Normalized by Population {rolling} Day Rolling Average'),
+        xaxis=dict(title='date'),
+        yaxis=dict(title='cases per 100,000')
     )
     st.plotly_chart(fig)
 
-df_ny['uid'] = df_ny['county'] + ' ,' + df_ny['state']
+def plot_log_cases(df,counties, date, rolling=3):
+    fig = go.Figure()
+    for i in counties:
+        L = df.loc[(df.uid==i)&(df.index<=date),'cases_norm'].to_list()
+        y = [np.log10(y - x) for x,y in zip(L,L[1:])]
+        x = [np.log10(j) for j in L]
+        fig.add_trace(
+            go.Scatter(
+                y=pd.Series(y).rolling(rolling, center=True).mean(),
+                x=x,
+                name=i,
+                mode='lines'))
+    
+    fig.update_layout(
+        template='plotly_white', 
+        title=go.layout.Title(text=f"Case Growth Rate with {rolling} Day Rolling Average"),
+        xaxis=dict(title='total cases per 100,000'), 
+        yaxis=dict(title='cases per day per 100,000')
+    )
+    
+    st.plotly_chart(fig)
+
+def plot_log_acceleration(df,counties, date, rolling):
+    fig = go.Figure()
+    for i in counties:
+        L = df.loc[(df.uid==i)&(df.index<=date),'cases_norm'].to_list()
+        y = [np.log10(y - x) for x,y in zip(L,L[1:])]
+        x = [np.log10(j) for j in L]
+        slope = [(y[1]-y[0])/(x[1]-x[0]) for x,y in zip(zip(x, x[1:]), zip(y, y[1:]))]
+        fig.add_trace(
+            go.Scatter(
+                y=pd.Series(slope).rolling(rolling, center=True).mean(),
+                x=x,
+                name=i,
+                mode='lines'))
+
+    fig.update_layout(
+        template='plotly_white', 
+        title=go.layout.Title(text=f"Cases Growth Acceleration with {rolling} Day Rolling Average"),
+        xaxis=dict(title='total cases per 100,000'), 
+        yaxis=dict(title='cases per day^2 per 100,000')
+    )
+    
+    st.plotly_chart(fig)
+df_ny['uid'] = df_ny['county'] + ', ' + df_ny['state']
 df_ny['date'] = df_ny.index
-top_counties=list(df_ny.loc[df_ny.index==df_ny.index.max(), :].sort_values('cases', ascending=False).uid)[:10]
-counties=st.multiselect('pick your counties here', top_counties, default=top_counties[:3])
-plot_log_cases(df_ny, counties, df_ny.index.max())
+top_counties=list(df_ny.loc[df_ny.index==df_ny.index.max(), :].sort_values('cases', ascending=False).uid)
+counties=st.sidebar.multiselect('pick your counties here', top_counties, default=top_counties[:3])
+rolling=st.sidebar.slider('pick rolling mean window', 1, 7, 3, 1)
+
+st.header('COVID-19 Explorer')
+st.write('On March 16th, Non-essential business and schools shut down')
+plot_cases(df_ny, counties, df_ny.index.max(), rolling)
+plot_log_cases(df_ny, counties, df_ny.index.max(), rolling)
+plot_log_acceleration(df_ny, counties, df_ny.index.max(), rolling)
+st.write(f'Data Capture Date: {df_ny.index.max()}')
+st.write(f'Data Source: https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv')

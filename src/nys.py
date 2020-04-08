@@ -57,7 +57,9 @@ def nys():
         )
         # fig.update_layout(
         #     template='plotly_white', 
-        #     title=go.layout.Title(text=f'{col} Normalized by Population {rolling} Day Rolling Average'.title() ),
+        #     title=go.layout.Title(
+        #         text=f'{col} Normalized by Population {rolling} Day Rolling Average'.title()
+        #         ),
         #     xaxis=dict(title='date'),
         #     yaxis=dict(title=f'{col} per 100,000')
         # )

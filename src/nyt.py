@@ -7,7 +7,7 @@ def nyt():
     @st.cache(allow_output_mutation=True)
     def get_data(): 
         df_covid = pd.read_csv('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv', index_col=False)
-        df_pop = pd.read_csv('https://raw.githubusercontent.com/SPTKL/covid/master/pop_fips.csv', index_col=False)
+        df_pop = pd.read_csv('https://raw.githubusercontent.com/SPTKL/covid/master/data/pop_fips.csv', index_col=False)
         df_covid.fips = df_covid.fips.apply(lambda x: np.nan_to_num(x))
         df_covid['fips'] = df_covid['fips'].apply(lambda x: str(int(x)))
         df_pop['fips'] = df_pop['fips'].astype(int).astype(str)

@@ -15,8 +15,8 @@ def nys():
         df_state_ = df_state_.drop(columns=['County Name'])
         df_state_.columns = ['test_date', 'county', 'pos_new', 'pos_total','tests_new', 'tests_total', 'pop']
 
-        df_state_['pos_total_norm'] = df_state_.pos_total*10000000/df_state_['pop']/df_state_['tests_total']
-        df_state_['pos_new_norm'] = df_state_.pos_new*10000000/df_state_['pop']/df_state_['tests_total']
+        df_state_['pos_total_norm'] = df_state_.pos_total/df_state_['tests_total']*100
+        # df_state_['pos_new_norm'] = df_state_.pos_new/df_state_['tests_total']*100
 
         df_state_.test_date = df_state_.test_date.astype('datetime64[ns]')
         df_state_.index = df_state_.test_date
@@ -54,14 +54,13 @@ def nys():
     def plot_2(df,counties, date):
         fig = go.Figure()
         for i in counties:
-            y = df.loc[(df.tests_total >= 1000)&(df.county==i), 'pos_new_norm']
-            x = df.loc[(df.tests_total >= 1000)&(df.county==i), 'pos_total_norm']
+            y = df.loc[(df.tests_total >= 1000)&(df.county==i), 'pos_new']
+            x = df.loc[(df.tests_total >= 1000)&(df.county==i), 'pos_total']
             fig.add_trace(
                 go.Scatter(
-                    y=y,
-                    x=x,
+                    y=np.log10(y),
+                    x=np.log10(x),
                     name=i,
-                    text=df.index,
                     mode='lines'))
 
         fig.update_layout(
@@ -69,8 +68,8 @@ def nys():
             title=go.layout.Title(
                 text='Positive case growth rate'.title()
                 ),
-            xaxis=dict(title='positive total normalized'.title()),
-            yaxis=dict(title=f'positive new normalized'.title())
+            xaxis=dict(title='positive total'.title()),
+            yaxis=dict(title=f'positive new'.title())
         )
         st.plotly_chart(fig)
 

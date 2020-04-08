@@ -92,8 +92,8 @@ def nyt():
         fig.update_layout(
             template='plotly_white', 
             title=go.layout.Title(text=f"{col} Growth Rate with {rolling} Day Rolling Average".title() ),
-            xaxis=dict(title=f'total {col} per 100,000'), 
-            yaxis=dict(title=f'{col} per day per 100,000')
+            xaxis=dict(title=f'total {col} per 100,000 (log10 scale)'), 
+            yaxis=dict(title=f'{col} per day per 100,000 (log10 scale)')
         )
         
         st.plotly_chart(fig)
@@ -115,8 +115,8 @@ def nyt():
         fig.update_layout(
             template='plotly_white', 
             title=go.layout.Title(text=f"{col} Growth Acceleration with {rolling} Day Rolling Average".title() ),
-            xaxis=dict(title=f'total {col} per 100,000'), 
-            yaxis=dict(title=f'{col} per day^2 per 100,000')
+            xaxis=dict(title=f'total {col} per 100,000 (log10 scale)'), 
+            yaxis=dict(title=f'{col} per day^2 per 100,000 (log10 scale)')
         )
         
         st.plotly_chart(fig)
@@ -127,6 +127,7 @@ def nyt():
     counties=st.sidebar.multiselect('pick your counties here', top_counties, default=top_counties[:3])
     rolling=st.sidebar.slider('pick rolling mean window', 1, 7, 3, 1)
     col=st.sidebar.selectbox('cases/deaths', ['cases', 'deaths'], index=0)
+    st.title('New York Times Data')
     st.write('On March 16th, Non-essential business and schools shut down')
 
     plot_cases(df_covid, counties, df_covid.index.max(), rolling, col)

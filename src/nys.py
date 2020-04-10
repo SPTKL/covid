@@ -17,8 +17,8 @@ def nys():
 
         df_state_['pos_total_norm'] = df_state_.pos_total/df_state_['tests_total']*100
         df_state_['pos_total_norm_pop'] = df_state_.pos_total/df_state_['pop']*100000
-        df_state_['pos_new_norm'] = df_state_.pos_new/df_state_['pop']*100000
-        
+        df_state_['pos_new_norm_pop'] = df_state_.pos_new/df_state_['pop']*100000
+        df_state_['pos_new_norm'] = df_state_.pos_new/df_state_['tests_new']*100        
         df_state_['tests_total_norm'] = df_state_.tests_total/df_state_['pop']*100000
         df_state_['tests_new_norm'] = df_state_.tests_new/df_state_['pop']*100000
 
@@ -29,13 +29,35 @@ def nys():
     df_state =get_data()
     df_state = df_state.sort_index()
     date=df_state.index.max()
-    top_counties=list(df_state.loc[(df_state.index==df_state.index.max())&(df_state.tests_total >= 10000), :]\
-                    .sort_values('pos_total_norm_pop', ascending=False).county)
+    top_counties=list(df_state.loc[(df_state.index==df_state.index.max())&(df_state.tests_total >= 1000), :]\
+                    .sort_values('pos_total_norm', ascending=False).county)
     
     counties=st.sidebar.multiselect('pick your counties here', top_counties, default=top_counties[:5])
     rolling=st.sidebar.slider('pick rolling mean window', 1, 7, 3, 1)
     st.title('New York State Testing Data')
     
+    def plot_0(df,counties, date, rolling):
+        fig = go.Figure()
+        for i in counties:
+            y = df.loc[(df.county==i)&(df.index<=date), 'tests_new_norm'].rolling(rolling, center=True).mean()
+            x = df.loc[(df.county==i)&(df.index<=date), 'test_date']
+            fig.add_trace(
+                go.Scatter(
+                    y=y,
+                    x=x,
+                    name=i,
+                    mode='lines'))
+
+        fig.update_layout(
+            template='plotly_white', 
+            title=go.layout.Title(
+                text=f'testing capacity ({rolling} day rolling mean)'.title()
+                ),
+            xaxis=dict(title='date'.title()),
+            yaxis=dict(title=f'test per day per 100,000'.title())
+        )
+        st.plotly_chart(fig)
+
     def plot_1(df,counties, date, rolling):
         fig = go.Figure()
         for i in counties:
@@ -61,10 +83,9 @@ def nys():
     def plot_2(df,counties, date, rolling):
         fig = go.Figure()
         for i in counties:
-            y = df.loc[(df.tests_total_norm >= 300)&(df.tests_new_norm>=50)&(df.county==i), 'pos_new_norm']
-            x = df.loc[(df.tests_total_norm >= 300)&(df.tests_new_norm>=50)&(df.county==i), 'tests_total_norm']
-            y = [np.log10(i) for i in y]
-            x = [np.log10(i) for i in x]
+            y = df.loc[(df.county==i)&(df.index<=date), 'pos_new_norm']
+            x = df.loc[(df.county==i)&(df.index<=date), 'test_date']
+            y = [y2-y1 for y1,y2 in zip(y, y[1:])]
             fig.add_trace(
                 go.Scatter(
                     y=pd.Series(y).rolling(rolling, center=True).mean(),
@@ -75,61 +96,13 @@ def nys():
         fig.update_layout(
             template='plotly_white', 
             title=go.layout.Title(
-                text=f'case growth rate ({rolling} day rolling mean)'.title()
-                ),
-            yaxis=dict(title='cases per day per 100,000 (log10 scale)'.title()),
-            xaxis=dict(title=f'total tests per 100,000 (log10 scale)'.title())
-        )
-        st.plotly_chart(fig)
-
-    def plot_3(df,counties, date, rolling):
-        fig = go.Figure()
-        for i in counties:
-            y = df.loc[(df.tests_total >= 1000)&(df.county==i), 'pos_new_norm']
-            x = df.loc[(df.tests_total >= 1000)&(df.county==i), 'tests_total_norm']
-            y = [np.log10(i) for i in y]
-            x = [np.log10(i) for i in x]
-            slope = [(y[1]-y[0])/(x[1]-x[0]) for x,y in zip(zip(x, x[1:]), zip(y, y[1:]))]
-            fig.add_trace(
-                go.Scatter(
-                    y=pd.Series(slope).rolling(rolling, center=True).mean(),
-                    x=x,
-                    name=i,
-                    mode='lines'))
-
-        fig.update_layout(
-            template='plotly_white', 
-            title=go.layout.Title(
-                text=f'case growth acceleration ({rolling} day rolling mean)'.title()
-                ),
-            xaxis=dict(title='total tests per 100,000 (log10 scale)'.title()),
-            yaxis=dict(title=f'cases per day^2 per 100,000 (log10 scale)'.title())
-        )
-        st.plotly_chart(fig)
-
-    def plot_4(df,counties, date, rolling):
-        fig = go.Figure()
-        for i in counties:
-            y = df.loc[(df.county==i)&(df.index<=date), 'tests_new_norm'].rolling(rolling, center=True).mean()
-            x = df.loc[(df.county==i)&(df.index<=date), 'test_date']
-            fig.add_trace(
-                go.Scatter(
-                    y=y,
-                    x=x,
-                    name=i,
-                    mode='lines'))
-
-        fig.update_layout(
-            template='plotly_white', 
-            title=go.layout.Title(
-                text=f'testing capacity ({rolling} day rolling mean)'.title()
+                text=f'Change in positive/negative ratio ({rolling} day rolling mean)'.title()
                 ),
             xaxis=dict(title='date'.title()),
-            yaxis=dict(title=f'test per day per 100,000'.title())
+            yaxis=dict(title=f'Change in positive/negative ratio'.title())
         )
         st.plotly_chart(fig)
 
-    plot_4(df_state,counties, date, rolling)
-    plot_1(df_state,counties, date, rolling)
-    plot_2(df_state,counties, date, rolling)
-    plot_3(df_state,counties, date, rolling)
+    plot_0(df_state, counties, date, rolling)
+    plot_1(df_state, counties, date, rolling)
+    plot_2(df_state, counties, date, rolling)

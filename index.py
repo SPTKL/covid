@@ -1,11 +1,12 @@
 import streamlit as st
 from src.nyt import nyt 
 from src.nys import nys
-
+from src.zc import zc
 datasets = {
     '-':None,
     'US County Level Data': nyt, 
-    'New York State County Level Data': nys
+    'New York State County Level Data': nys,
+    'Zipcode Level Data': zc
 }
 
 def run():
@@ -32,6 +33,8 @@ def run():
         df['pop'] = df['B01001_001E']
         df[['fips', 'pop']].to_csv('pop_fips.csv', index=False)
         ```
+        + Zipcode level testing data is scraped from dohmh pdfs [(link)](https://github.com/chazeon/NYState-COVID-19-Tracker)
+        + Zipcode boundry is from NYC OpenData, which also contains population estimates [(link)](https://data.cityofnewyork.us/Business/Zip-Code-Boundaries/i8iw-xf4u/data?no_mobile=true)
         ''', unsafe_allow_html=True)
     else:
         app()

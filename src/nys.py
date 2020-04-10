@@ -76,7 +76,7 @@ def nys():
                 text=f'Percentage of positive tests ({rolling} day rolling mean)'.title()
                 ),
             xaxis=dict(title='date'.title()),
-            yaxis=dict(title=f'Percetage of positive cases per 100,000'.title())
+            yaxis=dict(title=f'Percetage of positive cases'.title())
         )
         st.plotly_chart(fig)
     
@@ -96,10 +96,10 @@ def nys():
         fig.update_layout(
             template='plotly_white', 
             title=go.layout.Title(
-                text=f'Change in positive/negative ratio ({rolling} day rolling mean)'.title()
+                text=f'Change in positive ratio ({rolling} day rolling mean)'.title()
                 ),
             xaxis=dict(title='date'.title()),
-            yaxis=dict(title=f'Change in positive/negative ratio'.title())
+            yaxis=dict(title=f'Change in positive ratio'.title())
         )
         st.plotly_chart(fig)
 

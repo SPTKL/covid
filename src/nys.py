@@ -65,6 +65,15 @@ def nys():
         "pick your counties here", top_counties, default=top_counties[:5]
     )
     rolling = st.sidebar.slider("pick rolling mean window", 1, 14, 3, 1)
+    
+    st.sidebar.info('''
+    
+    **Positivity Rate of Cumulative Tests** = Total positive cases / Total tests performed
+
+    **Positivity Rate of Cumulative Tests** = Total positive cases / Total tests performed
+
+    ''')
+
     st.title("New York State Testing Data")
 
     def plot_0(df, counties, date, rolling):
@@ -105,10 +114,34 @@ def nys():
         fig.update_layout(
             template="plotly_white",
             title=go.layout.Title(
-                text=f"Percentage of positive tests ({rolling} day rolling mean)".title()
+                text=f"Positivity Rate of Cumulative tests ({rolling} day rolling mean)".title()
             ),
             xaxis=dict(title="date".title()),
-            yaxis=dict(title=f"Percetage of positive cases".title()),
+            yaxis=dict(title=f"Positivity Rate".title()),
+        )
+        st.plotly_chart(fig)
+
+    def plot_3(df, counties, date, rolling):
+        fig = go.Figure()
+        for i in counties:
+            y = df.loc[(df.county == i) & (df.index <= date), "pos_new_norm"]
+            x = df.loc[(df.county == i) & (df.index <= date), "test_date"]
+            fig.add_trace(
+                go.Scatter(
+                    y=pd.Series(y).rolling(rolling, center=True).mean(),
+                    x=x,
+                    name=i,
+                    mode="lines",
+                )
+            )
+
+        fig.update_layout(
+            template="plotly_white",
+            title=go.layout.Title(
+                text=f"Positivity Rate of Daily Tests ({rolling} day rolling mean)".title()
+            ),
+            xaxis=dict(title="date".title()),
+            yaxis=dict(title=f"Positivity Rate".title()),
         )
         st.plotly_chart(fig)
 
@@ -130,13 +163,14 @@ def nys():
         fig.update_layout(
             template="plotly_white",
             title=go.layout.Title(
-                text=f"Change in positive ratio ({rolling} day rolling mean)".title()
+                text=f"Change in Daily Positivity Rate ({rolling} day rolling mean)".title()
             ),
             xaxis=dict(title="date".title()),
-            yaxis=dict(title=f"Change in positive ratio".title()),
+            yaxis=dict(title=f"Change in Positivity Rate".title()),
         )
         st.plotly_chart(fig)
 
     plot_0(df_state, counties, date, rolling)
     plot_1(df_state, counties, date, rolling)
+    plot_3(df_state, counties, date, rolling)
     plot_2(df_state, counties, date, rolling)

@@ -15,7 +15,7 @@ def zc():
             "https://raw.githubusercontent.com/SPTKL/covid/master/data/pop_zipcode.csv"
         )
         geojson = requests.get(
-            "https://raw.githubusercontent.com/nychealth/coronavirus-data/master/Geography-resources/MODZCTA_2010_WGS1984.geo.json"
+            "https://raw.githubusercontent.com/SPTKL/covid/master/data/zipcode.geojson"
         ).json()
         df_zc = df_zc.dropna(subset=["zip_code", "uhf_code"], axis=0)
         df_zc = df_zc.reset_index().drop("index", axis=1)

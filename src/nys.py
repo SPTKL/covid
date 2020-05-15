@@ -65,12 +65,12 @@ def nys():
         "pick your counties here", top_counties, default=top_counties[:5]
     )
     rolling = st.sidebar.slider("pick rolling mean window", 1, 14, 3, 1)
-    
+
     st.sidebar.info('''
     
     **Positivity Rate of Cumulative Tests** = Total positive cases / Total tests performed
 
-    **Positivity Rate of Cumulative Tests** = Total positive cases / Total tests performed
+    **Positivity Rate of Daily Tests** = Daily New positive cases / Daily New tests performed
 
     ''')
 

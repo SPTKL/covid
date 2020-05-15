@@ -15,7 +15,7 @@ def zc():
             "https://raw.githubusercontent.com/SPTKL/covid/master/data/pop_zipcode.csv"
         )
         geojson = requests.get(
-            "https://raw.githubusercontent.com/SPTKL/covid/master/data/zipcode.geojson"
+            "https://raw.githubusercontent.com/nychealth/coronavirus-data/master/Geography-resources/MODZCTA_2010_WGS1984.geo.json"
         ).json()
         df_zc = df_zc.dropna(subset=["zip_code", "uhf_code"], axis=0)
         df_zc = df_zc.reset_index().drop("index", axis=1)
@@ -45,6 +45,7 @@ def zc():
         df_zc = pd.DataFrame(
             l, columns=["date", "zipcode", "name", "positive", "total"]
         )
+        df_zc = df_zc.loc[df_zc.date != '2020-04-26', :]
         df_zc_pop = df_zc_pop.groupby("zipcode")["population"].sum().reset_index()
         df_zc = df_zc.merge(
             df_zc_pop[df_zc_pop.population != 0][["zipcode", "population"]],
@@ -82,6 +83,7 @@ def zc():
 
     """
     )
+    st.sidebar.warning('Note that Apirl 26, 2020 data is removed because it\'s likely an anosmaly')
 
     def create_map(date):
         df = df_zc.loc[df_zc.index == date, :]

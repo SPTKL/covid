@@ -45,8 +45,8 @@ def zc():
         df_zc = pd.DataFrame(
             l, columns=["date", "zipcode", "name", "positive", "total"]
         )
-        df_zc = df_zc.loc[df_zc.date != '2020-04-26', :]
-        df_zc.date = df_zc.date.apply(lambda x: x.replace('2020-05-19.1', '2020-05-20'))
+        df_zc = df_zc.loc[df_zc.date != "2020-04-26", :]
+        df_zc.date = df_zc.date.apply(lambda x: x.replace("2020-05-19.1", "2020-05-20"))
         df_zc_pop = df_zc_pop.groupby("zipcode")["population"].sum().reset_index()
         df_zc = df_zc.merge(
             df_zc_pop[df_zc_pop.population != 0][["zipcode", "population"]],
@@ -84,7 +84,9 @@ def zc():
 
     """
     )
-    st.sidebar.warning('Note that Apirl 26, 2020 data is removed because it\'s likely an anosmaly')
+    st.sidebar.warning(
+        "Note that Apirl 26, 2020 data is removed because it's likely an anosmaly"
+    )
 
     def create_map(date):
         df = df_zc.loc[df_zc.index == date, :]
@@ -132,13 +134,9 @@ def zc():
             tot = df.loc[(df.zipcode == i) & (df.index <= date), "total"]
             pos_new = [y2 - y1 for y1, y2 in zip(pos, pos[1:])]
             tot_new = [y2 - y1 for y1, y2 in zip(tot, tot[1:])]
-            y = [p / t if t!=0 else np.nan for p, t in zip(pos_new, tot_new)]
+            y = [p / t if t != 0 else np.nan for p, t in zip(pos_new, tot_new)]
 
-            y = (
-                pd.Series(y)
-                .rolling(rolling, center=True)
-                .mean()
-            )
+            y = pd.Series(y).rolling(rolling, center=True).mean()
             fig.add_trace(go.Scatter(y=y, x=df.index, name=i, mode="lines"))
 
         fig.update_layout(
@@ -158,7 +156,7 @@ def zc():
             tot = df.loc[(df.zipcode == i) & (df.index <= date), "total"]
             pos_new = [y2 - y1 for y1, y2 in zip(pos, pos[1:])]
             tot_new = [y2 - y1 for y1, y2 in zip(tot, tot[1:])]
-            y = [p / t if t!=0 else np.nan for p, t in zip(pos_new, tot_new)]
+            y = [p / t if t != 0 else np.nan for p, t in zip(pos_new, tot_new)]
             y = [y2 - y1 for y1, y2 in zip(y, y[1:])]
             y = (
                 pd.Series(y)

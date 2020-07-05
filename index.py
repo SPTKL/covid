@@ -2,12 +2,14 @@ import streamlit as st
 from src.nyt import nyt
 from src.nys import nys
 from src.zc import zc
+from src.migration import migration
 
 datasets = {
     "-": None,
     "US County Level Data": nyt,
     "New York State County Level Data": nys,
     "Zipcode Level Data": zc,
+    "Inflow Outflow": migration,
 }
 
 

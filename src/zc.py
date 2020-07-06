@@ -7,72 +7,70 @@ def zc():
     import requests
 
     @st.cache(allow_output_mutation=True)
-    def get_data():
-        df_zc = pd.read_csv(
-            "https://raw.githubusercontent.com/chazeon/NYState-COVID-19-Tracker/master/data/NYC-github-coronavirus-data-tests-by-zcta.csv"
-        )
-        df_zc_pop = pd.read_csv(
-            "https://raw.githubusercontent.com/SPTKL/covid/master/data/pop_zipcode.csv"
-        )
+    def get_modzcta():
+        # get commit history:
+        url_commits = 'https://api.github.com/repos/nychealth/coronavirus-data/commits'
+        next_page=True
+        page=1
+        history=[]
+        while next_page:
+            commits = requests.get(f'{url_commits}?page={page}').json()
+            if len(commits) != 0:
+                for commit in commits:
+                    history.append(dict(
+                        sha = commit['sha'],
+                        date = commit['commit']['author']['date']
+                    ))
+                page += 1
+            else: 
+                next_page=False
+        
+        # Get modzcta data
+        modzcta=[]
+        for commit in history:
+            sha = commit['sha']
+            date = commit['date'][:10]
+            url = f'https://raw.githubusercontent.com/nychealth/coronavirus-data/{sha}/data-by-modzcta.csv'
+            try:
+                df = pd.read_csv(url)
+                df['date'] = date
+                modzcta.append(df)
+                del df
+            except:
+                pass
+        dff = pd.concat(modzcta)
+        del modzcta
+
+        dff.date=dff.date.astype('datetime64[ns]')
+        dff = dff.sort_values(['date', 'MODIFIED_ZCTA'])
+        dff = dff.reset_index()
+        dff['pos_new'] = dff.groupby('MODIFIED_ZCTA').COVID_CASE_COUNT.diff()
+        dff['total_new'] = dff.groupby('MODIFIED_ZCTA').TOTAL_COVID_TESTS.diff()
+        dff['pos_rate'] = dff.pos_new/dff.total_new
+        dff['pos_rate_change'] = dff.groupby('MODIFIED_ZCTA').pos_rate.diff()
+        dff['death_new_norm'] = dff.groupby('MODIFIED_ZCTA').COVID_DEATH_COUNT.diff()*100000/dff.POP_DENOMINATOR
+        dff['zipcode'] = dff['MODIFIED_ZCTA'].astype(str) + ' - ' + dff['NEIGHBORHOOD_NAME']
+        dff.index=dff.date
+        return dff
+
+    @st.cache(allow_output_mutation=True)
+    def get_geojson():
         geojson = requests.get(
             "https://raw.githubusercontent.com/SPTKL/covid/master/data/zipcode.geojson"
         ).json()
-        df_zc = df_zc.dropna(subset=["zip_code", "uhf_code"], axis=0)
-        df_zc = df_zc.reset_index().drop("index", axis=1)
-        nta_col = list(df_zc.columns[6:])
-        l = []
-        for i in range(0, len(df_zc), 2):
-            for j in nta_col:
-                l.append(
-                    [
-                        j,
-                        df_zc.zip_code[i],
-                        df_zc.uhf_name[i],
-                        list(
-                            df_zc[
-                                (df_zc.zip_code == df_zc.zip_code[i])
-                                & (df_zc.status == "Positive")
-                            ][j]
-                        )[0],
-                        list(
-                            df_zc[
-                                (df_zc.zip_code == df_zc.zip_code[i])
-                                & (df_zc.status == "Total")
-                            ][j]
-                        )[0],
-                    ]
-                )
-        df_zc = pd.DataFrame(
-            l, columns=["date", "zipcode", "name", "positive", "total"]
-        )
-        df_zc = df_zc.loc[df_zc.date != "2020-04-26", :]
-        df_zc.date = df_zc.date.apply(lambda x: x.replace("2020-05-19.1", "2020-05-20"))
-        df_zc_pop = df_zc_pop.groupby("zipcode")["population"].sum().reset_index()
-        df_zc = df_zc.merge(
-            df_zc_pop[df_zc_pop.population != 0][["zipcode", "population"]],
-            on="zipcode",
-            how="left",
-        )
-        df_zc.date = df_zc.date.astype("datetime64[ns]")
-        df_zc.index = df_zc.date
-        df_zc = df_zc.drop("date", axis=1)
-        df_zc["confidence_int"] = 1 - np.sqrt(1 / df_zc.total - 1 / df_zc.population)
-        df_zc["ratio"] = df_zc.positive / df_zc.total
-        df_zc["zip"] = df_zc["zipcode"].astype(int).astype(str)
-        df_zc["zipcode"] = (
-            df_zc["zipcode"].astype(int).astype(str) + " " + df_zc["name"]
-        )
-        return df_zc, geojson
+        return geojson
 
-    df_zc, geojson = get_data()
-    date = df_zc.index.max()
+    # geojson = get_geojson()
+    df_zc = get_modzcta()
+
+    date = df_zc.date.max()
     top_zips = list(
-        df_zc.loc[df_zc.index == df_zc.index.max(), :]
-        .sort_values("ratio", ascending=False)
+        df_zc.loc[df_zc.date == df_zc.date.max(), :]
+        .sort_values("pos_rate", ascending=False)
         .zipcode
     )
     zipcode = st.sidebar.multiselect(
-        "pick your zipcodes here", top_zips, default=top_zips[:5]
+        "pick your zipcodes here", top_zips, default=top_zips[:10]
     )
     rolling = st.sidebar.slider("pick rolling mean window", 1, 14, 3, 1)
     st.sidebar.info(
@@ -89,20 +87,20 @@ def zc():
     )
 
     def create_map(date):
-        df = df_zc.loc[df_zc.index == date, :]
+        df = df_zc.loc[df_zc.date == date, :]
         fig = px.choropleth_mapbox(
             df,
             geojson=geojson,
-            locations="zip",
+            locations="MODIFIED_ZCTA",
             featureidkey="properties.ZIPCODE",
-            color="ratio",
+            color="pos_rate",
             color_continuous_scale="YlOrRd",
-            range_color=(df.ratio.min(), df.ratio.max()),
+            range_color=(0,10),
             mapbox_style="carto-positron",
             zoom=9,
             center={"lat": 40.7128, "lon": -74.0060},
             opacity=0.7,
-            hover_name="name",
+            hover_name="zipcode",
         )
         fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
         st.plotly_chart(fig)
@@ -110,12 +108,17 @@ def zc():
     def plot_1(df, date, zipcode, rolling):
         fig = go.Figure()
         for i in zipcode:
+            dff = df.loc[
+                    (df.zipcode == i) & 
+                    (df.date <= date) & 
+                    (df.total_new > 0), 
+                    :]
             y = (
-                df.loc[(df.zipcode == i) & (df.index <= date), "ratio"]
+                dff.loc[:, "pos_rate"]
                 .rolling(rolling, center=True)
                 .mean()
             )
-            fig.add_trace(go.Scatter(y=y, x=df.index, name=i, mode="lines"))
+            fig.add_trace(go.Scatter(y=y, x=dff.index, name=i, mode="lines"))
 
         fig.update_layout(
             template="plotly_white",
@@ -130,56 +133,56 @@ def zc():
     def plot_2(df, date, zipcode, rolling):
         fig = go.Figure()
         for i in zipcode:
-            pos = df.loc[(df.zipcode == i) & (df.index <= date), "positive"]
-            tot = df.loc[(df.zipcode == i) & (df.index <= date), "total"]
-            pos_new = [y2 - y1 for y1, y2 in zip(pos, pos[1:])]
-            tot_new = [y2 - y1 for y1, y2 in zip(tot, tot[1:])]
-            y = [p / t if t != 0 else np.nan for p, t in zip(pos_new, tot_new)]
-
-            y = pd.Series(y).rolling(rolling, center=True).mean()
-            fig.add_trace(go.Scatter(y=y, x=df.index, name=i, mode="lines"))
+            dff = df.loc[
+                    (df.zipcode == i) & 
+                    (df.date <= date) &
+                    (df.date != pd.to_datetime('2020-06-30')),
+                    :]
+            y = (
+                dff.loc[:, "death_new_norm"]
+                .rolling(rolling, center=True)
+                .mean()
+            )
+            fig.add_trace(go.Scatter(y=y, x=dff.index, name=i, mode="lines"))
 
         fig.update_layout(
             template="plotly_white",
             title=go.layout.Title(
-                text=f"Positivity Rate of Daily tests ({rolling} day rolling mean)".title()
+                text=f"Death normalized by population ({rolling} day rolling mean)".title()
             ),
             xaxis=dict(title="date".title()),
-            yaxis=dict(title=f"Positivity Rate".title()),
+            yaxis=dict(title=f"normalized Death".title()),
         )
         st.plotly_chart(fig)
 
     def plot_3(df, date, zipcode, rolling):
         fig = go.Figure()
         for i in zipcode:
-            pos = df.loc[(df.zipcode == i) & (df.index <= date), "positive"]
-            tot = df.loc[(df.zipcode == i) & (df.index <= date), "total"]
-            pos_new = [y2 - y1 for y1, y2 in zip(pos, pos[1:])]
-            tot_new = [y2 - y1 for y1, y2 in zip(tot, tot[1:])]
-            y = [p / t if t != 0 else np.nan for p, t in zip(pos_new, tot_new)]
-            y = [y2 - y1 for y1, y2 in zip(y, y[1:])]
+            dff = df.loc[
+                    (df.zipcode == i) & 
+                    (df.date <= date) & 
+                    (df.total_new > 0), 
+                    :]
             y = (
-                pd.Series(y)
-                .rolling(rolling, center=True)
-                .mean()
+                dff.loc[:, "pos_rate_change"]
                 .rolling(rolling, center=True)
                 .mean()
             )
-            fig.add_trace(go.Scatter(y=y, x=df.index, name=i, mode="lines"))
+            fig.add_trace(go.Scatter(y=y, x=dff.index, name=i, mode="lines"))
 
         fig.update_layout(
             template="plotly_white",
             title=go.layout.Title(
-                text=f"Changes in Positivity Rate of Daily Tests ({rolling} day rolling mean)".title()
+                text=f"Change in Positivity Rate ({rolling} day rolling mean)".title()
             ),
             xaxis=dict(title="date".title()),
-            yaxis=dict(title=f"Changes in Positivity Rate".title()),
+            yaxis=dict(title=f"Positivity Rate growth rate".title()),
         )
         st.plotly_chart(fig)
 
     plot_1(df_zc, date, zipcode, rolling)
-    plot_2(df_zc, date, zipcode, rolling)
     plot_3(df_zc, date, zipcode, rolling)
+    plot_2(df_zc, date, zipcode, rolling)
 
-    st.header("Positivity Rate of Cumulative Tests")
-    create_map(date)
+    # st.header("Positivity Rate of Cumulative Tests")
+    # create_map(date)

@@ -38,8 +38,41 @@ def run():
         df['pop'] = df['B01001_001E']
         df[['fips', 'pop']].to_csv('pop_fips.csv', index=False)
         ```
-        + Zipcode level testing data is scraped from dohmh pdfs [(link)](https://github.com/chazeon/NYState-COVID-19-Tracker)
+        + Zipcode level testing data is scraped from dohmh github repo [(link)](https://github.com/nychealth/coronavirus-data)
         + Zipcode boundry is from NYC OpenData, which also contains population estimates [(link)](https://data.cityofnewyork.us/Business/Zip-Code-Boundaries/i8iw-xf4u/data?no_mobile=true)
+        ```python
+        # get commit history:
+        url_commits = 'https://api.github.com/repos/nychealth/coronavirus-data/commits'
+        next_page=True
+        page=1
+        history=[]
+        while next_page:
+            commits = requests.get(f'{url_commits}?page={page}').json()
+            if len(commits) != 0:
+                for commit in commits:
+                    history.append(dict(
+                        sha = commit['sha'],
+                        date = commit['commit']['author']['date']
+                    ))
+                page += 1
+            else: 
+                next_page=False
+        
+        # Get modzcta data
+        modzcta=[]
+        for commit in history:
+            sha = commit['sha']
+            date = commit['date'][:10]
+            url = f'https://raw.githubusercontent.com/nychealth/coronavirus-data/{sha}/data-by-modzcta.csv'
+            try:
+                df = pd.read_csv(url)
+                df['date'] = date
+                modzcta.append(df)
+                del df
+            except:
+                pass
+        dff = pd.concat(modzcta)
+        ```
         """,
             unsafe_allow_html=True,
         )

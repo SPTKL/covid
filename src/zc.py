@@ -49,7 +49,8 @@ def zc():
         dff['pos_rate'] = dff.pos_new/dff.total_new
         dff['pos_rate_change'] = dff.groupby('MODIFIED_ZCTA').pos_rate.diff()
         dff['death_new_norm'] = dff.groupby('MODIFIED_ZCTA').COVID_DEATH_COUNT.diff()*100000/dff.POP_DENOMINATOR
-        dff['zipcode'] = dff['MODIFIED_ZCTA'].astype(str) + ' - ' + dff['NEIGHBORHOOD_NAME']
+        dff['MODIFIED_ZCTA'] = dff['MODIFIED_ZCTA'].astype(int).astype(str)
+        dff['zipcode'] = dff['MODIFIED_ZCTA'] + ' - ' + dff['NEIGHBORHOOD_NAME']
         dff.index=dff.date
         return dff
 
@@ -60,10 +61,10 @@ def zc():
         ).json()
         return geojson
 
-    # geojson = get_geojson()
+    geojson = get_geojson()
     df_zc = get_modzcta()
 
-    date = df_zc.date.max()
+    date = df_zc.date.max() - pd.DateOffset(1)
     top_zips = list(
         df_zc.loc[df_zc.date == df_zc.date.max(), :]
         .sort_values("pos_rate", ascending=False)
@@ -73,38 +74,7 @@ def zc():
         "pick your zipcodes here", top_zips, default=top_zips[:10]
     )
     rolling = st.sidebar.slider("pick rolling mean window", 1, 14, 3, 1)
-    st.sidebar.info(
-        """
-    
-    **Positivity Rate of Cumulative Tests** = Total positive cases / Total tests performed
-
-    **Positivity Rate of Daily Tests** = Daily New positive cases / Daily New tests performed
-
-    """
-    )
-    st.sidebar.warning(
-        "Note that Apirl 26, 2020 data is removed because it's likely an anosmaly"
-    )
-
-    def create_map(date):
-        df = df_zc.loc[df_zc.date == date, :]
-        fig = px.choropleth_mapbox(
-            df,
-            geojson=geojson,
-            locations="MODIFIED_ZCTA",
-            featureidkey="properties.ZIPCODE",
-            color="pos_rate",
-            color_continuous_scale="YlOrRd",
-            range_color=(0,10),
-            mapbox_style="carto-positron",
-            zoom=9,
-            center={"lat": 40.7128, "lon": -74.0060},
-            opacity=0.7,
-            hover_name="zipcode",
-        )
-        fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
-        st.plotly_chart(fig)
-
+    st.sidebar.info(f'Last Updated: {str(df_zc.date.max())[:10]}')
     def plot_1(df, date, zipcode, rolling):
         fig = go.Figure()
         for i in zipcode:
@@ -180,9 +150,29 @@ def zc():
         )
         st.plotly_chart(fig)
 
+    def create_map(date):
+        df = df_zc.loc[(df_zc.date == date), :]
+        fig = px.choropleth_mapbox(
+            df,
+            geojson=geojson,
+            locations="MODIFIED_ZCTA",
+            featureidkey="properties.ZIPCODE",
+            color="pos_rate",
+            color_continuous_scale="YlOrRd",
+            mapbox_style="carto-positron",
+            range_color=(df.pos_rate.min(), df.pos_rate.max()),
+            zoom=9,
+            center={"lat": 40.7128, "lon": -74.0060},
+            opacity=0.7,
+            hover_name="NEIGHBORHOOD_NAME",
+        )
+        fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+        st.plotly_chart(fig)
+
+    st.title('Zipcode Level Testing and Death Data')
     plot_1(df_zc, date, zipcode, rolling)
     plot_3(df_zc, date, zipcode, rolling)
     plot_2(df_zc, date, zipcode, rolling)
 
-    # st.header("Positivity Rate of Cumulative Tests")
-    # create_map(date)
+    st.header(f"Positivity Rate of {str(date)[:10]}")
+    create_map(date)

@@ -22,7 +22,7 @@ def run():
 
         st.header("Info about the data sources:")
         st.markdown(
-            """ 
+        """ 
         + New York State testing data is published on NYS OpenData [(link)](https://health.data.ny.gov/Health/New-York-State-Statewide-COVID-19-Testing/xdss-u53e)
         + US County Level Data is from New York Times Github Repo [(link)](https://github.com/nytimes/covid-19-data)
         + county level population data is pulled from acs 2018, run the code below to pull the data:
@@ -41,6 +41,9 @@ def run():
         + Zipcode level testing data is scraped from dohmh github repo [(link)](https://github.com/nychealth/coronavirus-data)
         + Zipcode boundry is from NYC OpenData, which also contains population estimates [(link)](https://data.cityofnewyork.us/Business/Zip-Code-Boundaries/i8iw-xf4u/data?no_mobile=true)
         ```python
+        import requests
+        import pandas as pd
+
         # get commit history:
         url_commits = 'https://api.github.com/repos/nychealth/coronavirus-data/commits'
         next_page=True

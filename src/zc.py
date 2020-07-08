@@ -68,7 +68,7 @@ def zc():
     top_zips = list(
         df_zc.loc[df_zc.date == df_zc.date.max(), :]
         .sort_values("pos_rate", ascending=False)
-        .zipcode
+        .zipcode.unique()
     )
     zipcode = st.sidebar.multiselect(
         "pick your zipcodes here", top_zips, default=top_zips[:10]

@@ -118,10 +118,10 @@ def zc():
         fig.update_layout(
             template="plotly_white",
             title=go.layout.Title(
-                text=f"Death normalized by population ({rolling} day rolling mean)".title()
+                text=f"Deaths normalized by population ({rolling} day rolling mean)".title()
             ),
             xaxis=dict(title="date".title()),
-            yaxis=dict(title=f"normalized Death".title()),
+            yaxis=dict(title=f"normalized Deaths per 100,000".title()),
         )
         st.plotly_chart(fig)
 

@@ -22,9 +22,12 @@ jobs:
     
     - name: Commit files
       run: |
+        DATE=$(date "+%Y-%m-%d")
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git commit -m "Pulling latest zipcode level data" -a
+        git add data/modzcta.csv
+        git commit -m "Pulling latest zipcode level data $DATE" -a
+        
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:

@@ -1,15 +1,12 @@
-name: Pull Zipcode Level Data
+name: Update Zipcode Level Data
 
 on:
-  push:
-    branches: [ master ]
   schedule:
     - cron: '0 */6 * * *'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: "contains(github.event.head_commit.message, '[zc]')"    
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
@@ -29,7 +26,7 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add .
-        git commit -m "Pulling latest zipcode level data $DATE" -a
+        git commit -m "🎉 Updating latest zipcode level data $DATE" -a
         
     - name: Push changes
       uses: ad-m/github-push-action@master

@@ -11,7 +11,6 @@ def get_modzcta():
         history=[]
         while next_page:
             commits = requests.get(f'{url_commits}?page={page}').json()
-            print(commits)
             if len(commits) != 0:
                 for commit in commits:
                     history.append(dict(
@@ -49,7 +48,7 @@ def get_modzcta():
         dff['MODIFIED_ZCTA'] = dff['MODIFIED_ZCTA'].astype(int).astype(str)
         dff['zipcode'] = dff['MODIFIED_ZCTA'] + ' - ' + dff['NEIGHBORHOOD_NAME']
         dff.index=dff.date
-        dff.to_csv('../../data/modzcta.csv', index=False)
+        dff.to_csv('../data/modzcta.csv', index=False)
 
 if __name__ == "__main__":
     get_modzcta()

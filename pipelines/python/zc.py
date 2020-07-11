@@ -36,18 +36,6 @@ def get_modzcta():
                 pass
         dff = pd.concat(modzcta)
         del modzcta
-
-        dff.date=dff.date.astype('datetime64[ns]')
-        dff = dff.sort_values(['date', 'MODIFIED_ZCTA'])
-        dff = dff.reset_index()
-        dff['pos_new'] = dff.groupby('MODIFIED_ZCTA').COVID_CASE_COUNT.diff()
-        dff['total_new'] = dff.groupby('MODIFIED_ZCTA').TOTAL_COVID_TESTS.diff()
-        dff['pos_rate'] = dff.pos_new/dff.total_new
-        dff['pos_rate_change'] = dff.groupby('MODIFIED_ZCTA').pos_rate.diff()
-        dff['death_new_norm'] = dff.groupby('MODIFIED_ZCTA').COVID_DEATH_COUNT.diff()*100000/dff.POP_DENOMINATOR
-        dff['MODIFIED_ZCTA'] = dff['MODIFIED_ZCTA'].astype(int).astype(str)
-        dff['zipcode'] = dff['MODIFIED_ZCTA'] + ' - ' + dff['NEIGHBORHOOD_NAME']
-        dff.index=dff.date
         dff.to_csv('../data/modzcta.csv', index=False)
 
 if __name__ == "__main__":

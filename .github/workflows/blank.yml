@@ -1,0 +1,31 @@
+name: Pull Zipcode Level Data
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.6'
+
+    - name: pip install 
+      run: pip install requests pandas
+
+    - name: Run Script
+      working-directory: pipeline
+      run: ./zc.sh
+    
+    - name: Commit files
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Pulling latest zipcode level data" -a
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}

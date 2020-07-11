@@ -25,7 +25,7 @@ jobs:
         DATE=$(date "+%Y-%m-%d-%h")
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add data/modzcta.csv
+        git add .
         git commit -m "Pulling latest zipcode level data $DATE" -a
         
     - name: Push changes

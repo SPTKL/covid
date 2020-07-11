@@ -22,7 +22,7 @@ jobs:
     
     - name: Commit files
       run: |
-        DATE=$(date "+%Y-%m-%d")
+        DATE=$(date "+%Y-%m-%d-%h")
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add data/modzcta.csv

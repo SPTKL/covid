@@ -90,7 +90,7 @@ do
                 SELECT '$DATE' as date, * FROM state
                 UNION SELECT '$DATE' as date, * FROM msa
                 ) TO STDOUT DELIMITER ',' CSV HEADER;" > $DATE-in.csv
-        tail -n +2  $DATE-in.csv >> ../data/inflow.csv
+        tail -n +2  $DATE-in.csv >> ../../data/inflow.csv
 
         # Outflow
         psql $ENGINE -c "\COPY (
@@ -134,7 +134,8 @@ do
                 SELECT '$DATE' as date, * FROM state
                 UNION SELECT '$DATE' as date, * FROM msa
                 ) TO STDOUT DELIMITER ',' CSV HEADER;" > $DATE-out.csv
-        tail -n +2  $DATE-out.csv >> ../data/outflow.csv
+        tail -n +2  $DATE-out.csv >> ../../data/outflow.csv
+        psql $ENGINE -c "DROP TABLE IF EXISTS public.\"$DATE\";"
     )
     rm -rf tmp
 done

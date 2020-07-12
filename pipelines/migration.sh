@@ -150,3 +150,4 @@ else
     echo "
     [$(date)] safegraph no change, skipping ...
     " >> CHANGE.txt
+fi

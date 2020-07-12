@@ -22,7 +22,7 @@ def run():
 
         st.header("Info about the data sources:")
         st.markdown(
-        """ 
+            """ 
         + New York State testing data is published on NYS OpenData [(link)](https://health.data.ny.gov/Health/New-York-State-Statewide-COVID-19-Testing/xdss-u53e)
         + US County Level Data is from New York Times Github Repo [(link)](https://github.com/nytimes/covid-19-data)
         + county level population data is pulled from acs 2018, run the code below to pull the data:

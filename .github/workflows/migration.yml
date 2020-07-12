@@ -1,0 +1,71 @@
+name: Update Migration
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "contains(github.event.head_commit.message, '[mg]')"
+    env:
+      AWS_ENDPOINT: ${{ secrets.AWS_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  
+    services:
+      postgres:
+        image: postgis/postgis:11-3.0-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.6'
+
+      - name: set up env
+        run: |
+          sudo apt update
+          sudo apt install -y curl zip
+          sudo tee /etc/apt/sources.list.d/pgdg.list <<END
+          deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main
+          END
+          # get the signing key and import it
+          curl -O https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          sudo apt-key add ACCC4CF8.asc
+          sudo apt update
+          sudo apt install -y postgresql-client-11
+          sudo apt autoremove
+          curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+          chmod +x mc
+          sudo mv ./mc /usr/bin
+          mc config host add sg $AWS_ENDPOINT $AWS_ACCESS_KEY_ID $AWS_SECRET_ACCESS_KEY --api S3v4
+
+      - name: pip install
+        run: pip install requests pandas
+
+      - name: Run inflow outflow
+        working-directory: pipelines
+        run: |
+          export ENGINE=postgresql://postgres:postgres@localhost:5432/postgres
+          ./migration.sh
+      
+      - name: Commit files
+        run: |
+          DATE=$(date "+%Y-%m-%d-%h")
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "🎉 Updating safegraph data $DATE" -a
+          
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}

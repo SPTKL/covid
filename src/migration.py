@@ -7,9 +7,11 @@ def migration():
 
     @st.cache(allow_output_mutation=True)
     def get_data():
-        inflow = pd.read_csv("https://safegraph.sfo2.digitaloceanspaces.com/inflow.csv")
+        inflow = pd.read_csv(
+            "https://raw.githubusercontent.com/SPTKL/covid/master/data/inflow.csv"
+        )
         outflow = pd.read_csv(
-            "https://safegraph.sfo2.digitaloceanspaces.com/outflow.csv"
+            "https://raw.githubusercontent.com/SPTKL/covid/master/data/outflow.csv"
         )
         inflow.date = inflow.date.astype("datetime64")
         outflow.date = outflow.date.astype("datetime64")

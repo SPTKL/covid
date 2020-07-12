@@ -1,10 +1,7 @@
 #!/bin/bash
 
 mc ls -r sg/sg-c19-response/social-distancing/v2/ > _objects.txt
-tail -n 1 _objects.txt
-
 python3 python/migration.py > update.txt
-tail -n 1 update.txt
 
 if [ -s update.txt ]
 then 

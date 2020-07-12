@@ -4,3 +4,6 @@
 138239 ../data/inflow.csv 
 142402 ../data/outflow.csv
 
+
+    [Sun Jul 12 01:11:16 UTC 2020] safegraph no change, skipping ...
+    

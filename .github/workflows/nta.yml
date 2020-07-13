@@ -74,7 +74,7 @@ jobs:
           git pull
           git add .
           
-          git commit -m "🎉 Updating safegraph data $DATE" -a
+          git commit -m "🎉 Updating NTA outflow $DATE" -a
           
       - name: Push changes
         uses: ad-m/github-push-action@master

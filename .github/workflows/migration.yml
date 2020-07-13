@@ -2,6 +2,7 @@ name: Update Migration
 
 on:
   push:
+    branches: master
     paths:
     - '.github/workflow/migration.yml'
   schedule:

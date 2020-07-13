@@ -14,6 +14,16 @@ psql $ENGINE -c "
 "
 cat ../data/nta_latlon.csv | psql $ENGINE -c "COPY nta_latlon FROM STDIN DELIMITER ',' CSV HEADER;"
 
+psql $ENGINE -c "
+    CREATE TABLE ct_nta (
+        boroct text,
+        nta text,
+        lat double precision,
+        lon double precision
+    );
+"
+cat ../data/ct_nta.csv | psql $ENGINE -c "COPY ct_nta FROM STDIN DELIMITER ',' CSV HEADER;"
+
 # ETL
 if [ -s update.txt ]
 then 

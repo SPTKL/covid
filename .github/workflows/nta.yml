@@ -5,6 +5,7 @@ on:
     branches: master
     paths:
     - '.github/workflows/nta.yml'
+    - 'pipelines/nta.sh'
   schedule:
     - cron: '0 */12 * * *'
 

@@ -26,9 +26,9 @@ do
     mkdir -p tmp && (
         cd tmp
         mc cp sg/sg-c19-response/social-distancing/v2/$f $NAME
-        psql $ENGINE -v DATE=$DATE -f sql/create.sql
+        psql $ENGINE -v DATE=$DATE -f ../sql/create.sql
         psql $ENGINE -c "\copy public.\"$DATE\" FROM PROGRAM 'gzip -dc $NAME' DELIMITER ',' CSV HEADER NULL '' QUOTE '\"'"
-        psql $ENGINE -v DATE=$DATE -f sql/nta.sql >> nta_outflow.csv
+        psql $ENGINE -v DATE=$DATE -f ../sql/nta.sql >> ../../data/nta_outflow.csv
         psql $ENGINE -c "DROP TABLE IF EXISTS public.\"$DATE\";"
     )
     rm -rf tmp

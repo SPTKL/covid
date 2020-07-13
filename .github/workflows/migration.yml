@@ -1,6 +1,9 @@
 name: Update Migration
 
 on:
+  push:
+    paths:
+    - '.github/workflow/migration.yml'
   schedule:
     - cron: '0 */12 * * *'
 
@@ -66,7 +69,10 @@ jobs:
           DATE=$(date "+%Y-%m-%d")
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          
+          git pull origin master
           git add .
+          
           git commit -m "🎉 Updating safegraph data $DATE" -a
           
       - name: Push changes

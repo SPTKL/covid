@@ -17,8 +17,9 @@ cat ../data/nta_latlon.csv | psql $ENGINE -c "COPY nta_latlon FROM STDIN DELIMIT
 # ETL
 if [ -s update.txt ]
 then 
-    for f in $(cat update.txt)
-    do
+
+for f in $(cat update.txt)
+do
     echo "Pulling $f"
     NAME=$(basename $f)
     DATE=$(echo $NAME | cut -c1-10)
@@ -29,7 +30,10 @@ then
         psql $ENGINE -c "\copy public.\"$DATE\" FROM PROGRAM 'gzip -dc $NAME' DELIMITER ',' CSV HEADER NULL '' QUOTE '\"'"
         psql $ENGINE -v DATE=$DATE -f sql/nta.sql >> nta_outflow.csv
         psql $ENGINE -c "DROP TABLE IF EXISTS public.\"$DATE\";"
+    )
+    rm -rf tmp
 done
+    
 echo "
 [$(date)] safegraph NTA auto update
 $(cat update.txt)

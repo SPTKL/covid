@@ -19,5 +19,8 @@ CREATE TABLE public.:"DATE" (
     candidate_device_count integer,
     bucketed_away_from_home_time text,
     median_percentage_time_home text,
-    bucketed_percentage_time_home text
+    bucketed_percentage_time_home text,
+    mean_home_dwell_time text,
+    mean_non_home_dwell_time text,
+    mean_distance_traveled_from_home text
 );

@@ -43,7 +43,7 @@ do
     )
     rm -rf tmp
 done
-    
+# record update
 echo "
 [$(date)] safegraph NTA auto update
 $(cat update.txt)
@@ -53,7 +53,7 @@ $(wc -l ../data/nta_outflow.csv)
     rm _objects.txt
 
 else
-
+# record update
 echo "
 [$(date)] safegraph NTA no change, skipping ...
 " >> CHANGE.txt

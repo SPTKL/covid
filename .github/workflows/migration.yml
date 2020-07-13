@@ -4,7 +4,7 @@ on:
   push:
     branches: master
     paths:
-    - '.github/workflow/migration.yml'
+    - '.github/workflows/migration.yml'
   schedule:
     - cron: '0 */12 * * *'
 

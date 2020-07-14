@@ -22,7 +22,7 @@ jobs:
     
     - name: Commit files
       run: |
-        DATE=$(date "+%Y-%m-%d-%h")
+        DATE=$(date "+%Y-%m-%d")
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add .

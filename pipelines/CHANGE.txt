@@ -190,3 +190,7 @@
 139200 ../data/inflow.csv 
 143428 ../data/outflow.csv
 
+
+[Thu Jul 16 00:32:55 UTC 2020] zipcode level auto update
+13984 ../data/modzcta.csv
+

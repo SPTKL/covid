@@ -19,7 +19,11 @@ def run():
     if name == "-":
         st.sidebar.success("Select a dataset above.")
         st.title("COVID-19 Explorer")
-
+        st.markdown('''
+            <iframe width="100%" height="400" src="https://www.youtube.com/embed/ZjSmo1zdEMs?start=6" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        ''',
+            unsafe_allow_html=True
+        )
         st.header("Info about the data sources:")
         st.markdown(
             """ 

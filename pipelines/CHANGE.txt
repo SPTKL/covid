@@ -1156,3 +1156,7 @@
 [Fri Aug 14 12:20:17 UTC 2020] zipcode level auto update
 19653 ../data/modzcta.csv
 
+
+[Fri Aug 14 18:15:20 UTC 2020] zipcode level auto update
+19831 ../data/modzcta.csv
+

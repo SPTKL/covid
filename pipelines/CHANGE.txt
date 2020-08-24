@@ -1470,3 +1470,8 @@
 [Mon Aug 24 06:18:32 UTC 2020] zipcode level auto update
 21778 ../data/modzcta.csv
 
+
+[Mon Aug 24 12:03:42 UTC 2020] safegraph NTA auto update
+2020/08/20/2020-08-20-social-distancing.csv.gz
+897037 ../data/nta_outflow.csv
+

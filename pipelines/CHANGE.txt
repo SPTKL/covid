@@ -1475,3 +1475,6 @@
 2020/08/20/2020-08-20-social-distancing.csv.gz
 897037 ../data/nta_outflow.csv
 
+
+[Mon Aug 24 12:16:58 UTC 2020] safegraph no change, skipping ...
+

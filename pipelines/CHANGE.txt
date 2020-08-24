@@ -1456,3 +1456,9 @@
 
 [Mon Aug 24 00:03:35 UTC 2020] safegraph NTA no change, skipping ...
 
+
+[Mon Aug 24 00:34:50 UTC 2020] safegraph auto update
+2020/08/20/2020-08-20-social-distancing.csv.gz
+148597 ../data/inflow.csv 
+153420 ../data/outflow.csv
+

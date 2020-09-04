@@ -1796,3 +1796,9 @@
 2020/08/31/2020-08-31-social-distancing.csv.gz
 913548 ../data/nta_outflow.csv
 
+
+[Fri Sep  4 00:37:43 UTC 2020] safegraph auto update
+2020/08/31/2020-08-31-social-distancing.csv.gz
+151346 ../data/inflow.csv 
+156230 ../data/outflow.csv
+

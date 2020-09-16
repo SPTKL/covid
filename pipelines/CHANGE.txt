@@ -2212,3 +2212,7 @@
 
 [Wed Sep 16 12:18:09 UTC 2020] safegraph no change, skipping ...
 
+
+[Wed Sep 16 12:22:13 UTC 2020] zipcode level auto update
+25849 ../data/modzcta.csv
+

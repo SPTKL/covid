@@ -2290,3 +2290,7 @@
 155069 ../data/inflow.csv 
 159988 ../data/outflow.csv
 
+
+[Sat Sep 19 00:48:07 UTC 2020] zipcode level auto update
+26380 ../data/modzcta.csv
+

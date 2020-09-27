@@ -10122,3 +10122,7 @@
 [Sun Sep 27 12:22:41 UTC 2020] zipcode level auto update
 27797 ../data/modzcta.csv
 
+
+[Sun Sep 27 18:19:12 UTC 2020] zipcode level auto update
+27974 ../data/modzcta.csv
+

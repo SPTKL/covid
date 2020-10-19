@@ -163,7 +163,7 @@ def nyt():
     counties = st.sidebar.multiselect(
         "pick your counties here", top_counties, default=top_counties[:3]
     )
-    rolling = st.sidebar.slider("pick rolling mean window", 1, 14, 3, 1)
+    rolling = st.sidebar.slider("pick rolling mean window", 1, 28, 3, 1)
     col = st.sidebar.selectbox("cases/deaths", ["cases", "deaths"], index=0)
     st.title("New York Times Data")
     st.write("On March 16th, Non-essential business and schools shut down")

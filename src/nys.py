@@ -64,7 +64,7 @@ def nys():
     counties = st.sidebar.multiselect(
         "pick your counties here", top_counties, default=top_counties[:5]
     )
-    rolling = st.sidebar.slider("pick rolling mean window", 1, 14, 3, 1)
+    rolling = st.sidebar.slider("pick rolling mean window", 1, 28, 3, 1)
 
     st.sidebar.info(
         """

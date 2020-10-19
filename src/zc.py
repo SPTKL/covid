@@ -48,7 +48,7 @@ def zc():
     zipcode = st.sidebar.multiselect(
         "pick your zipcodes here", top_zips, default=top_zips[:10]
     )
-    rolling = st.sidebar.slider("pick rolling mean window", 1, 14, 3, 1)
+    rolling = st.sidebar.slider("pick rolling mean window", 1, 28, 3, 1)
     st.sidebar.info(f"Last Updated: {str(df_zc.date.max())[:10]}")
 
     def plot_1(df, date, zipcode, rolling):

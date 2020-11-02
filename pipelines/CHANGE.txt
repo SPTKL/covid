@@ -90518,3 +90518,7 @@
 020/10/29/020-10-29--social-distancing.csv.gz
 993304 ../data/nta_outflow.csv
 
+
+[Mon Nov  2 12:19:21 UTC 2020] zipcode level auto update
+37007 ../data/modzcta.csv
+

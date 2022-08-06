@@ -7,7 +7,7 @@ setup(
     install_requires=[
         "pandas==1.1.2", 
         "numpy==1.19.1", 
-        "streamlit==0.71.0", 
+        "streamlit==1.11.1", 
         "plotly==4.13.0"],
     zip_safe=False,
 )
